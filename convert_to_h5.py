@@ -16,6 +16,7 @@ from utils import (
     parse_annotation_json,
     slice_ann_by_segment,
     extract_patient_info,
+    generate_valid_records,
 )
 from create_h5_structure import create_h5_structure
 
@@ -111,6 +112,12 @@ def convert_folder_to_h5_ray(
     )
 
     os.makedirs(output_dir, exist_ok=True)
+
+    # ✅ 유효 레코드 목록 CSV가 없으면 자동 생성
+    if not os.path.exists(valid_list_path):
+        logging.info(f"📄 valid_list_path가 없어 자동 생성 중 → {valid_list_path}")
+        generate_valid_records(input_dir, valid_list_path)
+
     ray.init(num_cpus=64)
     logging.info(f"🧠 Ray initialized (CPUs: {ray.available_resources().get('CPU')})")
 

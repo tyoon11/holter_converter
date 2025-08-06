@@ -7,6 +7,7 @@ import os
 from neurokit2.misc import NeuroKitWarning
 import warnings
 import json
+import pandas as pd
 
 warnings.filterwarnings(
     "ignore",
@@ -46,26 +47,34 @@ def safe_mean_duration(a, b, sampling_rate):
 
 # 📌 JSON에서 환자 정보 추출
 def extract_patient_info(json_path):
+    """
+    - patient_id: 파일명에서 추출 (예: DVD20160909_33_2411480 → 2411480)
+    - age, gender: JSON에서 추출 (없거나 오류 시 fallback)
+    """
+    # patient_id: 파일명에서 추출
+    base = os.path.basename(json_path)
+    name_only = os.path.splitext(base)[0]
+    parts = name_only.split("_")
+    patient_id = parts[-1] if len(parts) >= 3 else name_only
+
+    # age, gender: JSON에서 추출 시도
     try:
         with open(json_path, "r") as f:
             data = json.load(f)
-
         patient_data = data.get("Holter Report", {}).get("PatientInfo", {})
-        patient_id = patient_data.get("PID", "")
         age = patient_data.get("Age", "")
         gender = patient_data.get("Gender", "")
-
-        return {
-            "patient_id": patient_id or "",
-            "age": int(age) if str(age).isdigit() else -1,
-            "gender": gender or "",
-        }
+        age = int(age) if str(age).isdigit() else -1
+        gender = gender or ""
     except:
-        return {
-            "patient_id": "",
-            "age": -1,
-            "gender": "",
-        }
+        age = -1
+        gender = ""
+
+    return {
+        "patient_id": patient_id,
+        "age": age,
+        "gender": gender,
+    }
 
 
 # =============================================================================
@@ -609,3 +618,29 @@ def slice_ann_by_segment(ann_dict, start, end):
     }
     result["sample"] = (np.array(result["sample"]) - start).tolist()
     return result
+
+
+# =============================================================================
+# 8. 유효 레코드 목록 생성 함수
+# =============================================================================
+
+
+def has_all_required_files(base_path):
+    return all(
+        os.path.exists(base_path + ext) for ext in [".hea", ".SIG", ".ANN", ".json"]
+    )
+
+
+def generate_valid_records(input_dir, output_csv):
+    hea_files = [f for f in os.listdir(input_dir) if f.lower().endswith(".hea")]
+    record_names = [os.path.splitext(f)[0] for f in hea_files]
+
+    valid_records = []
+    for name in record_names:
+        base_path = os.path.join(input_dir, name)
+        if has_all_required_files(base_path):
+            valid_records.append(name)
+
+    df = pd.DataFrame({"record_name": valid_records})
+    df.to_csv(output_csv, index=False)
+    print(f"✅ 유효한 레코드 {len(valid_records)}개 저장됨: {output_csv}")
