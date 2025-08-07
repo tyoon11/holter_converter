@@ -1,5 +1,3 @@
-물론이죠, 태윤님!
-지금까지의 설명을 모두 반영한 **최종 `README.md` 통합본**을 아래에 제공해드릴게요. 그대로 복사해서 붙여 넣으면 바로 사용 가능합니다.
 
 ---
 
@@ -103,17 +101,18 @@ python fix_pid.py
 ## 🔄 예시 실행 스크립트
 
 ```python
-convert_folder_to_h5_ray(
-    input_dir="/your/raw/data",
-    output_dir="/your/output/h5",
-    csv_path="output_h5_list.csv",
-    sampling_rate=125,
-    segment_sec=10,
-    log_path="conversion_log.txt",
-    valid_list_path="valid_records.csv",
-    use_dummy_fiducial=True,
-    use_dummy_similarity=True
-)
+    convert_folder_to_h5_ray(
+        input_dir="/your/raw/data",
+        output_dir="/your/output/h5",
+        csv_path="/your/path/output_h5_list.csv",
+        sampling_rate=125,
+        segment_sec=10,
+        log_path="/your/path/conversion_log.txt",
+        valid_list_path="/your/path/valid_records.csv",
+        use_dummy_fiducial=True,
+        use_dummy_similarity=True,
+    )
+
 ```
 
 ---
