@@ -60,6 +60,7 @@ def convert_one_record_ray(record_path, sampling_rate, segment_sec, max_segments
             seg_ann = slice_ann_by_segment(ann_data, start, end)
 
             stats = signal_statistics(seg_signal)
+            # 시간이 오래걸리므로 use_dummy=True -> 계산안함,
             sims = beat_similarity(seg_signal, sampling_rate, use_dummy=True)
             fidu = extract_ecg_features(seg_signal, sampling_rate, leads)
 
