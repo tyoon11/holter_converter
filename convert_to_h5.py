@@ -23,7 +23,14 @@ from create_h5_structure import create_h5_structure
 
 # ✅ 레코드 하나 처리 (Ray 전용, JSON 정보까지 포함)
 @ray.remote
-def convert_one_record_ray(record_path, sampling_rate, segment_sec, max_segments):
+def convert_one_record_ray(
+    record_path,
+    sampling_rate,
+    segment_sec,
+    max_segments,
+    use_dummy_fiducial=True,
+    use_dummy_similarity=True,
+):
     record_name = os.path.splitext(os.path.basename(record_path))[0]
     record_path_no_ext = os.path.splitext(record_path)[0]
 
@@ -60,9 +67,12 @@ def convert_one_record_ray(record_path, sampling_rate, segment_sec, max_segments
             seg_ann = slice_ann_by_segment(ann_data, start, end)
 
             stats = signal_statistics(seg_signal)
-            # 시간이 오래걸리므로 use_dummy=True -> 계산안함,
-            sims = beat_similarity(seg_signal, sampling_rate, use_dummy=True)
-            fidu = extract_ecg_features(seg_signal, sampling_rate, leads)
+            sims = beat_similarity(
+                seg_signal, sampling_rate, use_dummy=use_dummy_similarity
+            )
+            fidu = extract_ecg_features(
+                seg_signal, sampling_rate, leads, use_dummy=use_dummy_fiducial
+            )
 
             seg_signals.append(seg_signal.T)
             seg_annotations.append(seg_ann)
@@ -101,6 +111,8 @@ def convert_folder_to_h5_ray(
     max_segments=None,
     log_path="conversion.log",
     valid_list_path="valid_records.csv",
+    use_dummy_fiducial=True,
+    use_dummy_similarity=True,
 ):
     # 로깅 설정
     logging.basicConfig(
@@ -141,7 +153,14 @@ def convert_folder_to_h5_ray(
     )
 
     futures = [
-        convert_one_record_ray.remote(path, sampling_rate, segment_sec, max_segments)
+        convert_one_record_ray.remote(
+            path,
+            sampling_rate,
+            segment_sec,
+            max_segments,
+            use_dummy_fiducial,
+            use_dummy_similarity,
+        )
         for path in pending_record_paths
     ]
 
@@ -193,11 +212,13 @@ def convert_folder_to_h5_ray(
 # ✅ 실행 예시
 if __name__ == "__main__":
     convert_folder_to_h5_ray(
-        input_dir="/home/coder/workspace/data/tykim/nas1_Holter_PSVT",
-        output_dir="/home/coder/workspace/data/tykim/holter_h5_nosim",
-        csv_path="/home/coder/workspace/data/tykim/output_h5_list.csv",
+        input_dir="/your/raw/data",
+        output_dir="/your/output/h5",
+        csv_path="/your/path/output_h5_list.csv",
         sampling_rate=125,
         segment_sec=10,
-        log_path="/home/coder/workspace/data/tykim/conversion_log.txt",
-        valid_list_path="/home/coder/workspace/data/tykim/valid_records.csv",
+        log_path="/your/path/conversion_log.txt",
+        valid_list_path="/your/path/valid_records.csv",
+        use_dummy_fiducial=True,
+        use_dummy_similarity=True,
     )

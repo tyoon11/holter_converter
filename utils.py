@@ -439,7 +439,7 @@ def get_fiducial_features(waves_dwt, signal_lead1, signal_lead2, sampling_rate):
     return fiducial_feature
 
 
-def extract_ecg_features(signal, sampling_rate, leads):
+def extract_ecg_features(signal, sampling_rate, leads, use_dummy=False):
     """
     Extract ECG fiducial points, interval-related features, and axis.
 
@@ -479,6 +479,10 @@ def extract_ecg_features(signal, sampling_rate, leads):
         "r_axis",
         "t_axis",
     ]
+    if use_dummy:
+        fiducial_feature = {key: np.nan for key in fiducial_feature_keys}
+        fiducial_point = {"extraction_method": "", "fsample": [], "fiducial": []}
+        return {"fiducial_point": fiducial_point, "fiducial_feature": fiducial_feature}
 
     fiducial_feature = {key: np.nan for key in fiducial_feature_keys}
     fiducial_point = {"extraction_method": "", "fsample": [], "fiducial": []}

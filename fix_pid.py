@@ -85,6 +85,5 @@ def fix_hea_and_json_by_filename(input_dir):
 
 
 # ✅ 실행 예시
-
 if __name__ == "__main__":
-    fix_hea_and_json_by_filename("/home/coder/workspace/data/tykim/nas1_Holter_PSVT")
+    fix_hea_and_json_by_filename("/your/raw/path")
