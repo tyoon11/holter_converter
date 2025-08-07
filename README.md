@@ -38,7 +38,14 @@ Holter 원본 데이터는 `.hea`, `.json` 내부에 기록된 `record_name` 및
 ### ✅ fix\_pid.py 사용 방법
 
 1. raw 파일 전체를 **read/write 권한이 있는 별도 폴더**로 복사합니다.
-2. 아래 명령어를 실행하여 `.hea`, `.json` 파일의 내부 값을 정정합니다:
+2. fix\_py에서 다음 코드의 파일 경로를 수정합니다.
+
+   ```python
+   if __name__ == "__main__":
+    fix_hea_and_json_by_filename("/your/raw/path")
+   ```
+   
+3. 아래 명령어를 실행하여 `.hea`, `.json` 파일의 내부 값을 정정합니다:
 
 ```bash
 python fix_pid.py
