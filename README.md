@@ -14,7 +14,7 @@
 
 다음 Python 패키지를 설치해야 합니다:
 
-```bash
+```
 pip install pandas numpy h5py matplotlib neurokit2 dtw wfdb ray
 ````
 
